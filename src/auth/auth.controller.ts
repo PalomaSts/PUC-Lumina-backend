@@ -33,7 +33,7 @@ export class AuthController {
     const { token, user } = await this.authService.signIn(req.user);
 
     // Garante que user.id exista e salva direto o objeto plano (sem aninhamento)
-    const sessionUser = {
+    const _sessionUser = {
       id: user?.id,
       email: user?.email,
       name: user?.name,
