@@ -178,7 +178,6 @@ export class AuthController {
       path: '/',
     });
 
-    // ✅ atualizar sessão sem reatribuir e salvar
     if (req.session) {
       Object.assign(req.session, { user: updated });
       req.session.save?.(() => {});
