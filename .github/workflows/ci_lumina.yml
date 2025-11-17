@@ -11,11 +11,25 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     env:
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
-      DATABASE_URL: ${{ secrets.DATABA_URL }}
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb?schema=public
       APPINSIGHTS_CONNECTION_STRING: ${{ secrets.APPINSIGHTS_CONNECTION_STRING }}
 
     steps:
@@ -30,14 +44,21 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Gerar Prisma Client
+        run: npx prisma generate
+
       - name: Rodar Linting (Qualidade de Código)
         run: npm run lint
 
       - name: Rodar Build (Verificação de Compilação e Tipagem)
         run: npm run build
 
-      - name: Gerar Prisma Client
-        run: npx prisma generate
+      - name: Wait for postgres
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
+
+      - name: Aplicar migrações
+        run: npx prisma migrate deploy # ou npx prisma db push
 
       - name: Rodar testes automatizados
         run: npm run test
