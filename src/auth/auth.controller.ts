@@ -41,7 +41,7 @@ export class AuthController {
     };
 
     res.cookie('token', token, {
-      sameSite: 'lax',
+      sameSite: 'none',
       httpOnly: true,
       secure: true,
     });
