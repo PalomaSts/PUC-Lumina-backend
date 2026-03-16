@@ -43,10 +43,10 @@ export class AuthController {
     res.cookie('token', token, {
       sameSite: 'lax',
       httpOnly: true,
-      secure: false,
+      secure: true,
     });
 
-    return res.json(user);
+    return res.redirect(process.env.FRONTEND_URL);
   }
 
   // --- já existente getMe (mantenha a versão com fallback token)
