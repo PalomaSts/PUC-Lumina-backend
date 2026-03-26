@@ -176,3 +176,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+*.env
