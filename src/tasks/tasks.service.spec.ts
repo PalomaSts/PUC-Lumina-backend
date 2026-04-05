@@ -135,4 +135,26 @@ describe('TasksService', () => {
       expect(result).toEqual({ count: 1 });
     });
   });
+
+  describe('stats', () => {
+    it('should count tasks completed in last 24h', async () => {
+      prisma.task.count = jest.fn().mockResolvedValue(3);
+
+      const result = await service.countTasksLast24h('user-id');
+
+      expect(result).toEqual({ count: 3 });
+      expect(prisma.task.count).toHaveBeenCalled();
+    });
+
+    it('should return completion stats', async () => {
+      prisma.task.count = jest
+        .fn()
+        .mockResolvedValueOnce(10)
+        .mockResolvedValueOnce(6);
+
+      const result = await service.getCompletionStats('user-id');
+
+      expect(result).toEqual({ total: 10, completed: 6 });
+    });
+  });
 });
