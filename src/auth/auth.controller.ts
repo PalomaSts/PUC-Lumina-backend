@@ -20,12 +20,12 @@ export class AuthController {
   constructor(
     private prisma: PrismaService,
     private authService: AuthService,
-  ) {}
+  ) { }
 
   // --- OAuth routes (mantidas)
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth() {}
+  async googleAuth() { }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
@@ -64,7 +64,7 @@ export class AuthController {
           if (user && req.session) {
             // ✅ não reatribuir req.session
             Object.assign(req.session, { user });
-            req.session.save?.(() => {});
+            req.session.save?.(() => { });
           }
           return user;
         }
@@ -133,6 +133,17 @@ export class AuthController {
     return res.json({ token, user });
   }
 
+  @Post('logout')
+  logout(@Res() res: Response) {
+    res.clearCookie('token', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+    });
+
+    return res.json({ message: 'Logged out' });
+  }
+
   // -----------------------
   // Update credentials (ex.: change password)
   // -----------------------
@@ -180,7 +191,7 @@ export class AuthController {
 
     if (req.session) {
       Object.assign(req.session, { user: updated });
-      req.session.save?.(() => {});
+      req.session.save?.(() => { });
     }
 
     return updated;
