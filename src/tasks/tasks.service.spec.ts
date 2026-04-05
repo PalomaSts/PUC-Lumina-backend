@@ -12,6 +12,7 @@ const mockPrismaService = {
     findFirst: jest.fn(),
     updateMany: jest.fn(),
     deleteMany: jest.fn(),
+    count: jest.fn(),
   },
   project: {
     findUnique: jest.fn(),
@@ -138,7 +139,7 @@ describe('TasksService', () => {
 
   describe('stats', () => {
     it('should count tasks completed in last 24h', async () => {
-      prisma.task.count = jest.fn().mockResolvedValue(3);
+      prisma.task.count.mockResolvedValue(3);
 
       const result = await service.countTasksLast24h('user-id');
 

@@ -47,10 +47,11 @@ describe('ProjectsService', () => {
 
     prisma.project.create.mockResolvedValue(mockProject);
 
-    const result = await service.create('user-id', {
+    const result = await service.create({
       name: 'Projeto Teste',
       description: '',
-    });
+      userId: 'user-id',
+    } as any);
 
     expect(prisma.project.create).toHaveBeenCalled();
     expect(result).toEqual(mockProject);
