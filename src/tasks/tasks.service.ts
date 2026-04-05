@@ -157,7 +157,10 @@ export class TasksService {
     const count = await this.prisma.task.count({
       where: {
         userId,
-        completedAt: { gte: since },
+        completedAt: {
+          not: null,
+          gte: since
+        },
       },
     });
     return { count };
