@@ -48,4 +48,5 @@ model Task {
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
   createdAt DateTime @default(now())
+  completedAt DateTime?
 }

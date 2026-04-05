@@ -85,11 +85,19 @@ export class TasksService {
   async update(userId: string, id: string, data: Prisma.TaskUncheckedUpdateInput): Promise<Task> {
     const { projectId, ...allowedData } = data;
 
+    const updateData: Prisma.TaskUncheckedUpdateInput = {
+      ...allowedData,
+    };
+
+    if (data.status === 'completed') {
+      updateData.completedAt = new Date();
+    } else {
+      updateData.completedAt = null;
+    }
+
     const updateResult = await this.prisma.task.updateMany({
       where: { id, userId },
-      data: {
-        ...allowedData,
-      },
+      data: updateData,
     });
 
     if (updateResult.count === 0) {
