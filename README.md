@@ -89,7 +89,7 @@ O pipeline faz:
 
 O arquivo do workflow está em:
 ```
-.github/workflows/main_lumina.yml
+.github/workflows/cd_lumina-back.yml
 .github/workflows/ci_lumina.yml
 ```
 

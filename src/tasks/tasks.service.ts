@@ -6,7 +6,7 @@ import * as appInsights from 'applicationinsights';
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   private readonly logger = new Logger(TasksService.name);
 
   async create(userId: string, data: Prisma.TaskUncheckedCreateInput): Promise<Task> {
@@ -141,7 +141,7 @@ export class TasksService {
     const count = await this.prisma.task.count({
       where: {
         userId,
-        createdAt: { gte: since },
+        completedAt: { gte: since },
       },
     });
     return { count };
