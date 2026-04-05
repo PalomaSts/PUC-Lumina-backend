@@ -89,9 +89,17 @@ export class TasksService {
       ...allowedData,
     };
 
-    if (data.status === 'completed') {
+    let statusValue: string | undefined;
+
+    if (typeof data.status === 'string') {
+      statusValue = data.status;
+    } else if (typeof data.status === 'object' && data.status !== null) {
+      statusValue = (data.status as any).set;
+    }
+
+    if (statusValue === 'completed') {
       updateData.completedAt = new Date();
-    } else {
+    } else if (statusValue && statusValue !== 'completed') {
       updateData.completedAt = null;
     }
 
