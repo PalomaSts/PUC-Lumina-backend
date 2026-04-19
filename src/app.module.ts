@@ -9,6 +9,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './logger/winston.config';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -17,8 +18,9 @@ import { winstonConfig } from './logger/winston.config';
     ProjectsModule,
     TasksModule,
     WinstonModule.forRoot(winstonConfig),
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtService, AuthService],
 })
-export class AppModule {}
+export class AppModule { }
