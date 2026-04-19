@@ -22,12 +22,17 @@ export class AiService {
               Gere 3 tarefas úteis e específicas.
               Responda em lista.
               `,
+            options: {
+              wait_for_model: true,
+            },
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error('Erro na API do HuggingFace');
+        const errorText = await response.text();
+        console.error('HF ERROR:', errorText);
+        throw new Error(`HF Error: ${response.status}`);
       }
 
       const data: any = await response.json();
