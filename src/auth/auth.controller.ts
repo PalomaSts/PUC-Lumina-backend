@@ -20,12 +20,12 @@ export class AuthController {
   constructor(
     private prisma: PrismaService,
     private authService: AuthService,
-  ) { }
+  ) {}
 
   // --- OAuth routes (mantidas)
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth() { }
+  async googleAuth() {}
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
@@ -64,7 +64,7 @@ export class AuthController {
           if (user && req.session) {
             // ✅ não reatribuir req.session
             Object.assign(req.session, { user });
-            req.session.save?.(() => { });
+            req.session.save?.(() => {});
           }
           return user;
         }
@@ -91,10 +91,9 @@ export class AuthController {
       name: user.name,
     });
     res.cookie('token', token, {
-      sameSite: 'lax',
+      sameSite: 'none',
       httpOnly: true,
-      secure: false,
-      path: '/',
+      secure: true,
     });
     // (mantido como estava; aqui você não usa req, então não mexe em sessão)
     return res.status(201).json(user);
@@ -118,10 +117,9 @@ export class AuthController {
     });
 
     res.cookie('token', token, {
-      sameSite: 'lax',
+      sameSite: 'none',
       httpOnly: true,
-      secure: false,
-      path: '/',
+      secure: true,
     });
 
     // ✅ garantir que o objeto original da sessão é preservado e salvo antes do json
@@ -137,8 +135,8 @@ export class AuthController {
   logout(@Res() res: Response) {
     res.clearCookie('token', {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
+      sameSite: 'none',
+      secure: true,
     });
 
     return res.json({ message: 'Logged out' });
@@ -191,7 +189,7 @@ export class AuthController {
 
     if (req.session) {
       Object.assign(req.session, { user: updated });
-      req.session.save?.(() => { });
+      req.session.save?.(() => {});
     }
 
     return updated;
