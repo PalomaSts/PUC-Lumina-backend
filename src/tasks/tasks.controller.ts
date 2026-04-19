@@ -111,4 +111,9 @@ export class TasksController {
     if (!userId) throw new UnauthorizedException('Usuário não autenticado');
     return this.tasksService.getCompletionStats(userId);
   }
+
+  @Get('stats/weekly')
+  getWeekly(@Req() req: any) {
+    return this.tasksService.getWeeklyStats(req.user.id);
+  }
 }

@@ -6,7 +6,7 @@ import * as appInsights from 'applicationinsights';
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger(TasksService.name);
 
   async create(userId: string, data: Prisma.TaskUncheckedCreateInput): Promise<Task> {
@@ -159,7 +159,7 @@ export class TasksService {
         userId,
         completedAt: {
           not: null,
-          gte: since
+          gte: since,
         },
       },
     });
@@ -174,5 +174,36 @@ export class TasksService {
       where: { userId, status: 'completed' },
     });
     return { total, completed };
+  }
+
+  async getWeeklyStats(userId: string) {
+    const days = 7;
+    const result: { date: string; count: number }[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const start = new Date();
+      start.setDate(start.getDate() - i);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(start);
+      end.setHours(23, 59, 59, 999);
+
+      const count = await this.prisma.task.count({
+        where: {
+          userId,
+          completedAt: {
+            gte: start,
+            lte: end,
+          },
+        },
+      });
+
+      result.push({
+        date: start.toISOString().split('T')[0],
+        count,
+      });
+    }
+
+    return result;
   }
 }
