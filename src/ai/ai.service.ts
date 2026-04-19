@@ -2,40 +2,57 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AiService {
-    async suggestTasks(projectName: string): Promise<string[]> {
-        try {
-            const response = await fetch(
-                'https://api-inference.huggingface.co/models/google/flan-t5-base',
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${process.env.HF_TOKEN}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        inputs: `Liste 5 tarefas para um projeto chamado: ${projectName}`,
-                    }),
-                },
-            );
+  async suggestTasks(projectName: string): Promise<string[]> {
+    try {
+      const response = await fetch(
+        'https://api-inference.huggingface.co/models/google/flan-t5-base',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.HF_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            inputs: `
+              Considere um projeto chamado "${projectName}".
+              
+              Se for um projeto pessoal, sugira tarefas práticas do dia a dia.
+              Se for profissional, sugira tarefas organizacionais e de execução.
+              
+              Gere 3 tarefas úteis e específicas.
+              Responda em lista.
+              `,
+          }),
+        },
+      );
 
-            const data: any = await response.json();
+      if (!response.ok) {
+        throw new Error('Erro na API do HuggingFace');
+      }
 
-            const text = data?.[0]?.generated_text || '';
+      const data: any = await response.json();
+      const text = data?.[0]?.generated_text || '';
 
-            return text
-                .split('\n')
-                .map((t: string) => t.trim())
-                .filter((t: string) => t.length > 0)
-                .slice(0, 5);
-        } catch (error) {
-            console.error('Erro IA:', error);
+      // 🔥 parsing mais inteligente
+      const tasks = text
+        .split('\n')
+        .map((t: string) =>
+          t
+            .replace(/^\d+[\).\-\s]*/, '') // remove "1. ", "2 -", etc
+            .trim(),
+        )
+        .filter((t: string) => t.length > 10); // remove lixo
 
-            // fallback (importante!)
-            return [
-                `Definir objetivos do projeto "${projectName}"`,
-                'Criar planejamento inicial',
-                'Dividir tarefas principais',
-            ];
-        }
+      return tasks.slice(0, 5);
+    } catch (error) {
+      console.error('Erro IA:', error);
+
+      // fallback MELHORADO (menos genérico)
+      return [
+        `Definir metas específicas para o projeto "${projectName}"`,
+        `Criar plano de execução detalhado para "${projectName}"`,
+        `Organizar tarefas principais por prioridade`,
+      ];
     }
+  }
 }
