@@ -1,62 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import OpenAI from 'openai';
 
 @Injectable()
 export class AiService {
+  private openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
   async suggestTasks(projectName: string): Promise<string[]> {
     try {
-      const response = await fetch(
-        'https://api-inference.huggingface.co/models/google/flan-t5-base',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.HF_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            inputs: `
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: `
               Considere um projeto chamado "${projectName}".
               
-              Se for um projeto pessoal, sugira tarefas práticas do dia a dia.
-              Se for profissional, sugira tarefas organizacionais e de execução.
-              
-              Gere 3 tarefas úteis e específicas.
-              Responda em lista.
+              Gere 3 tarefas práticas, específicas e úteis para esse projeto.
+              Evite tarefas genéricas.
+              Responda em lista, uma por linha.
               `,
-            options: {
-              wait_for_model: true,
-            },
-          }),
-        },
-      );
+          },
+        ],
+      });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('HF ERROR:', errorText);
-        throw new Error(`HF Error: ${response.status}`);
-      }
+      const text = response.choices[0].message.content || '';
 
-      const data: any = await response.json();
-      const text = data?.[0]?.generated_text || '';
-
-      // 🔥 parsing mais inteligente
-      const tasks = text
+      return text
         .split('\n')
-        .map((t: string) =>
-          t
-            .replace(/^\d+[\).\-\s]*/, '') // remove "1. ", "2 -", etc
-            .trim(),
-        )
-        .filter((t: string) => t.length > 10); // remove lixo
-
-      return tasks.slice(0, 5);
+        .map((t) => t.replace(/^\d+[\).\-\s]*/, '').trim())
+        .filter((t) => t.length > 5)
+        .slice(0, 5);
     } catch (error) {
       console.error('Erro IA:', error);
 
-      // fallback MELHORADO (menos genérico)
       return [
-        `Definir metas específicas para o projeto "${projectName}"`,
-        `Criar plano de execução detalhado para "${projectName}"`,
-        `Organizar tarefas principais por prioridade`,
+        `Definir metas do projeto "${projectName}"`,
+        `Criar plano inicial de execução`,
+        `Organizar tarefas principais`,
       ];
     }
   }
