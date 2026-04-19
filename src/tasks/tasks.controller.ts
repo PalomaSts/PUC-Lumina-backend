@@ -114,6 +114,7 @@ export class TasksController {
 
   @Get('stats/weekly')
   getWeekly(@Req() req: any) {
-    return this.tasksService.getWeeklyStats(req.user.id);
+    const userId = req.session?.user?.id;
+    return this.tasksService.getWeeklyStats(userId);
   }
 }
