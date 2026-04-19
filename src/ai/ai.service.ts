@@ -17,9 +17,20 @@ export class AiService {
             content: `
               Considere um projeto chamado "${projectName}".
               
-              Gere 3 tarefas práticas, específicas e úteis para esse projeto.
-              Evite tarefas genéricas.
-              Responda em lista, uma por linha.
+              Gere 3 tarefas curtas e objetivas para esse projeto.
+              
+              Regras:
+              - Cada tarefa deve ter no máximo 6 palavras
+              - Não explique, apenas escreva a tarefa
+              - Não use frases longas
+              - Não use pontuação desnecessária
+              - Escreva como títulos de tarefas
+              - Uma tarefa por linha
+              
+              Exemplo de formato:
+              Criar plano de treino
+              Definir metas mensais
+              Organizar rotina semanal
               `,
           },
         ],
