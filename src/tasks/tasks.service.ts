@@ -181,12 +181,15 @@ export class TasksService {
     const result: { date: string; count: number }[] = [];
 
     for (let i = days - 1; i >= 0; i--) {
-      const start = new Date();
-      start.setDate(start.getDate() - i);
-      start.setHours(0, 0, 0, 0);
+      const now = new Date();
 
-      const end = new Date(start);
-      end.setHours(23, 59, 59, 999);
+      const start = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i, 0, 0, 0, 0),
+      );
+
+      const end = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i, 23, 59, 59, 999),
+      );
 
       const count = await this.prisma.task.count({
         where: {

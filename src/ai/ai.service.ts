@@ -3,11 +3,24 @@ import OpenAI from 'openai';
 
 @Injectable()
 export class AiService {
-  private openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+  private openai: OpenAI | null = null;
+
+  constructor() {
+    if (process.env.OPENAI_API_KEY) {
+      this.openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+    }
+  }
 
   async suggestTasks(projectName: string): Promise<string[]> {
+    if (!this.openai) {
+      return [
+        `Definir objetivos do projeto "${projectName}"`,
+        'Criar planejamento inicial',
+        'Dividir tarefas principais',
+      ];
+    }
     try {
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -36,13 +49,13 @@ export class AiService {
         ],
       });
 
-      const text = response.choices[0].message.content || '';
+      const text = response.choices?.[0]?.message?.content || '';
 
       return text
         .split('\n')
         .map((t) => t.replace(/^\d+[\).\-\s]*/, '').trim())
-        .filter((t) => t.length > 5)
-        .slice(0, 5);
+        .filter((t) => t.length > 2)
+        .slice(0, 3);
     } catch (error) {
       console.error('Erro IA:', error);
 
